@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Mensagem WhatsApp - Orçamento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f8fa 0%, #e0e7ff 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .form-section {
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #25D366;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        h2 {
+            color: #128C7E;
+            margin-bottom: 20px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #25D366;
+            box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .preview-section {
+            background-color: #f0f8ff;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #128C7E;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .message-preview {
+            background-color: #e8f5e9;
+            padding: 25px;
+            border-radius: 10px;
+            white-space: pre-line;
+            line-height: 1.8;
+            margin-top: 20px;
+            border: 2px dashed #25D366;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-copy {
+            background-color: #546E7A;
+        }
+        
+        .btn-copy:hover {
+            background-color: #455A64;
+        }
+        
+        .btn-success {
+            background-color: #128C7E;
+        }
+        
+        .btn-success:hover {
+            background-color: #0C6B5E;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fab fa-whatsapp"></i>
+            </div>
+            <h1>Gerador de Mensagem para WhatsApp</h1>
+            <p>Preencha os dados abaixo para gerar uma mensagem personalizada</p>
+        </header>
+        
+        <div class="content">
+            <section class="form-section">
+                <h2><i class="fas fa-building"></i> Dados do Cliente</h2>
+                <div class="form-group">
+                    <label for="clientName">Nome da Imobiliária</label>
+                    <input type="text" id="clientName" placeholder="Digite o nome da imobiliária">
+                </div>
+                <div class="form-group">
+                    <label for="responsibleName">Nome do Responsável</label>
+                    <input type="text" id="responsibleName" placeholder="Digite o nome do responsável">
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail">E-mail</label>
+                    <input type="email" id="clientEmail" placeholder="Digite o e-mail para contato">
+                </div>
+                <div class="form-group">
+                    <label for="currentDate">Data</label>
+                    <input type="date" id="currentDate">
+                </div>
+            </section>
+            
+            <section class="preview-section">
+                <h2><i class="fas fa-eye"></i> Prévia da Mensagem</h2>
+                <p>Confira como ficará a mensagem enviada pelo WhatsApp:</p>
+                <div class="message-preview" id="messagePreview">
+                    A mensagem será gerada automaticamente após preencher os dados.
+                </div>
+                
+                <div class="actions">
+                    <button id="btnUpdate" class="btn-success">
+                        <i class="fas fa-sync-alt"></i>
+                        Atualizar Prévia
+                    </button>
+                    <button id="btnCopy" class="btn-copy">
+                        <i class="fas fa-copy"></i>
+                        Copiar Mensagem
+                    </button>
+                    <button id="btnWhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                        Abrir WhatsApp
+                    </button>
+                </div>
+            </section>
+        </div>
+        
+        <footer>
+            <p>Este orçamento tem validade de 15 dias a partir da data de emissão.</p>
+        </footer>
+    </div>
+
+    <div class="notification" id="notification">
+        Mensagem copiada para a área de transferência!
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definir data atual como padrão
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('currentDate').value = formattedDate;
+            
+            // Elementos DOM
+            const clientName = document.getElementById('clientName');
+            const responsibleName = document.getElementById('responsibleName');
+            const clientEmail = document.getElementById('clientEmail');
+            const currentDate = document.getElementById('currentDate');
+            const messagePreview = document.getElementById('messagePreview');
+            const btnUpdate = document.getElementById('btnUpdate');
+            const btnCopy = document.getElementById('btnCopy');
+            const btnWhatsApp = document.getElementById('btnWhatsApp');
+            const notification = document.getElementById('notification');
+            
+            // Função para formatar a data no formato brasileiro
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR');
+            }
+            
+            // Função para mostrar notificação
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Função para gerar a mensagem
+            function generateMessage() {
+                const dateParts = currentDate.value.split('-');
+                const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+                
+                return `*Detalhamento dos Serviços*
+
+*1. Domínio e Hospedagem*
+Registro de domínio (.com.br): R$ 278,48 (válido por 3 anos)
+Incluindo:
+• Certificado SSL
+• E-mail profissional
+• Backup diário
+• Suporte técnico Grátis durante 1 ano
+
+*2. Design e Desenvolvimento (R$ 4.000,00)*
+• Design personalizado e exclusivo
+• Layout responsivo (adaptável a celulares, tablets e computadores)
+• Até 10 páginas principais (Home, Sobre, Imóveis, Contato, etc.)
+• Sistema de administração para gerenciar conteúdo
+• Formulários de contato e captura de leads
+• Galeria de imagens para os imóveis
+
+*3. Funcionalidades Específicas*
+• Integração com WhatsApp: Botão flutuante e links diretos
+• Chat online: Sistema de chat integrado para atendimento aos clientes
+• Integração com redes sociais: Feed do Instagram, Facebook e compartilhamento
+• Formulário de interesse em imóveis
+
+*4. Manutenção e Suporte*
+• Atualizações de segurança
+• Backup mensal
+• Suporte técnico para pequenas alterações
+• Relatório de desempenho trimestral
+
+*Condições de Pagamento*
+Entrada: 50% no início do projeto (R$ 2.000,00)
+Final: 50% na entrega do projeto (R$ 2.000,00)
+
+*Cronograma de Entrega*
+Semana 1: Definição de requisitos e criação do design
+Semana 2: Desenvolvimento e programação
+Semana 3: Implementação e integrações
+Semana 4: Testes, ajustes finais e colocação no ar
+
+*Observações*
+• O valor do domínio é pago diretamente ao registrar e não está incluído no valor total do orçamento
+• O prazo de 1 mês será cumprido mediante aprovação tempestiva dos materiais e conteúdo
+• Alterações significativas no escopo original podem impactar prazos e valores
+
+Aceito e de acordo:
+
+Imobiliária: ${clientName.value || '[NOME DA IMOBILIÁRIA]'}
+Responsável: ${responsibleName.value || '[NOME DO RESPONSÁVEL]'}
+E-mail: ${clientEmail.value || '[E-MAIL]'}
+Data: ${formattedDate}
+
+*Este orçamento tem validade de 15 dias a partir da data de emissão.*`;
+            }
+            
+            // Atualizar a prévia da mensagem
+            function updatePreview() {
+                messagePreview.textContent = generateMessage();
+            }
+            
+            // Event listeners para atualização em tempo real
+            clientName.addEventListener('input', updatePreview);
+            responsibleName.addEventListener('input', updatePreview);
+            clientEmail.addEventListener('input', updatePreview);
+            currentDate.addEventListener('change', updatePreview);
+            
+            // Botão de atualizar
+            btnUpdate.addEventListener('click', updatePreview);
+            
+            // Botão de copiar
+            btnCopy.addEventListener('click', function() {
+                const messageText = generateMessage();
+                navigator.clipboard.writeText(messageText).then(function() {
+                    showNotification('Mensagem copiada para a área de transferência!');
+                }, function() {
+                    showNotification('Falha ao copiar a mensagem.');
+                });
+            });
+            
+            // Botão do WhatsApp - CORREÇÃO DO PROBLEMA
+            btnWhatsApp.addEventListener('click', function() {
+                const messageText = encodeURIComponent(generateMessage());
+                // Abre o WhatsApp com a mensagem pré-preenchida
+                window.open(`https://web.whatsapp.com/send?text=${messageText}`, '_blank');
+            });
+            
+            // Inicializar a prévia
+            updatePreview();
+        });
+    </script>
+</body>
+</html>
