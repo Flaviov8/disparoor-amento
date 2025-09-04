@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Mensagem WhatsApp - Orçamento</title>
+    <title>Editor de Proposta Comercial</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -22,7 +22,7 @@
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: white;
             border-radius: 15px;
@@ -50,17 +50,30 @@
         
         .content {
             padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
         
-        .form-section {
+        @media (max-width: 900px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .editor-section, .preview-section {
             background-color: #f9f9f9;
             padding: 25px;
             border-radius: 10px;
-            border-left: 5px solid #25D366;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .editor-section {
+            border-left: 5px solid #25D366;
+        }
+        
+        .preview-section {
+            border-left: 5px solid #128C7E;
         }
         
         h2 {
@@ -83,7 +96,7 @@
             color: #555;
         }
         
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             padding: 14px;
             border: 1px solid #ddd;
@@ -92,7 +105,7 @@
             transition: border-color 0.3s;
         }
         
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #25D366;
             box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
@@ -101,6 +114,56 @@
         textarea {
             min-height: 120px;
             resize: vertical;
+        }
+        
+        .editor-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .editor-btn {
+            background-color: #546E7A;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .editor-btn:hover {
+            background-color: #455A64;
+        }
+        
+        #proposalContent {
+            min-height: 400px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .message-preview {
+            background-color: #e8f5e9;
+            padding: 25px;
+            border-radius: 10px;
+            white-space: pre-line;
+            line-height: 1.8;
+            margin-top: 20px;
+            border: 2px dashed #25D366;
+            font-family: 'Courier New', monospace;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
         }
         
         button {
@@ -122,34 +185,6 @@
             background-color: #128C7E;
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-        
-        .preview-section {
-            background-color: #f0f8ff;
-            padding: 25px;
-            border-radius: 10px;
-            border-left: 5px solid #128C7E;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .message-preview {
-            background-color: #e8f5e9;
-            padding: 25px;
-            border-radius: 10px;
-            white-space: pre-line;
-            line-height: 1.8;
-            margin-top: 20px;
-            border: 2px dashed #25D366;
-            font-family: 'Courier New', monospace;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-            flex-wrap: wrap;
         }
         
         .btn-copy {
@@ -200,6 +235,7 @@
         @media (max-width: 768px) {
             .content {
                 padding: 20px;
+                grid-template-columns: 1fr;
             }
             
             .actions {
@@ -227,13 +263,14 @@
             <div class="logo">
                 <i class="fab fa-whatsapp"></i>
             </div>
-            <h1>Gerador de Mensagem para WhatsApp</h1>
-            <p>Preencha os dados abaixo para gerar uma mensagem personalizada</p>
+            <h1>Editor de Proposta Comercial para WhatsApp</h1>
+            <p>Edite a proposta e visualize em tempo real como ficará no WhatsApp</p>
         </header>
         
         <div class="content">
-            <section class="form-section">
-                <h2><i class="fas fa-building"></i> Dados do Cliente</h2>
+            <section class="editor-section">
+                <h2><i class="fas fa-edit"></i> Editor de Proposta</h2>
+                
                 <div class="form-group">
                     <label for="clientName">Nome da Imobiliária</label>
                     <input type="text" id="clientName" placeholder="Digite o nome da imobiliária">
@@ -250,19 +287,29 @@
                     <label for="currentDate">Data</label>
                     <input type="date" id="currentDate">
                 </div>
+                
+                <h3>Conteúdo da Proposta</h3>
+                <div class="editor-controls">
+                    <button class="editor-btn" onclick="formatText('bold')"><i class="fas fa-bold"></i></button>
+                    <button class="editor-btn" onclick="formatText('italic')"><i class="fas fa-italic"></i></button>
+                    <button class="editor-btn" onclick="formatText('underline')"><i class="fas fa-underline"></i></button>
+                    <button class="editor-btn" onclick="insertBullet()"><i class="fas fa-list-ul"></i></button>
+                </div>
+                
+                <textarea id="proposalContent"></textarea>
             </section>
             
             <section class="preview-section">
-                <h2><i class="fas fa-eye"></i> Prévia da Mensagem</h2>
-                <p>Confira como ficará a mensagem enviada pelo WhatsApp:</p>
+                <h2><i class="fas fa-eye"></i> Visualização</h2>
+                <p>Como ficará a mensagem no WhatsApp:</p>
                 <div class="message-preview" id="messagePreview">
-                    A mensagem será gerada automaticamente após preencher os dados.
+                    A visualização será atualizada conforme você edita a proposta.
                 </div>
                 
                 <div class="actions">
                     <button id="btnUpdate" class="btn-success">
                         <i class="fas fa-sync-alt"></i>
-                        Atualizar Prévia
+                        Atualizar Visualização
                     </button>
                     <button id="btnCopy" class="btn-copy">
                         <i class="fas fa-copy"></i>
@@ -297,34 +344,15 @@
             const responsibleName = document.getElementById('responsibleName');
             const clientEmail = document.getElementById('clientEmail');
             const currentDate = document.getElementById('currentDate');
+            const proposalContent = document.getElementById('proposalContent');
             const messagePreview = document.getElementById('messagePreview');
             const btnUpdate = document.getElementById('btnUpdate');
             const btnCopy = document.getElementById('btnCopy');
             const btnWhatsApp = document.getElementById('btnWhatsApp');
             const notification = document.getElementById('notification');
             
-            // Função para formatar a data no formato brasileiro
-            function formatDate(dateString) {
-                const date = new Date(dateString);
-                return date.toLocaleDateString('pt-BR');
-            }
-            
-            // Função para mostrar notificação
-            function showNotification(message) {
-                notification.textContent = message;
-                notification.classList.add('show');
-                
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Função para gerar a mensagem
-            function generateMessage() {
-                const dateParts = currentDate.value.split('-');
-                const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-                
-                return `*Detalhamento dos Serviços*
+            // Conteúdo inicial da proposta
+            proposalContent.value = `*DETALHAMENTO DOS SERVIÇOS*
 
 *1. Domínio e Hospedagem*
 Registro de domínio (.com.br): R$ 278,48 (válido por 3 anos)
@@ -354,22 +382,78 @@ Incluindo:
 • Suporte técnico para pequenas alterações
 • Relatório de desempenho trimestral
 
-*Condições de Pagamento*
+*CONDIÇÕES DE PAGAMENTO*
 Entrada: 50% no início do projeto (R$ 2.000,00)
 Final: 50% na entrega do projeto (R$ 2.000,00)
 
-*Cronograma de Entrega*
+*CRONOGRAMA DE ENTREGA*
 Semana 1: Definição de requisitos e criação do design
 Semana 2: Desenvolvimento e programação
 Semana 3: Implementação e integrações
 Semana 4: Testes, ajustes finais e colocação no ar
 
-*Observações*
+*OBSERVAÇÕES*
 • O valor do domínio é pago diretamente ao registrar e não está incluído no valor total do orçamento
 • O prazo de 1 mês será cumprido mediante aprovação tempestiva dos materiais e conteúdo
 • Alterações significativas no escopo original podem impactar prazos e valores
 
-Aceito e de acordo:
+Aceito e de acordo:`;
+            
+            // Função para formatar a data no formato brasileiro
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR');
+            }
+            
+            // Função para mostrar notificação
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Funções de formatação de texto
+            function formatText(format) {
+                const textarea = document.getElementById('proposalContent');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const selectedText = textarea.value.substring(start, end);
+                
+                let formattedText = '';
+                
+                switch(format) {
+                    case 'bold':
+                        formattedText = `*${selectedText}*`;
+                        break;
+                    case 'italic':
+                        formattedText = `_${selectedText}_`;
+                        break;
+                    case 'underline':
+                        formattedText = `~${selectedText}~`;
+                        break;
+                }
+                
+                textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+                updatePreview();
+            }
+            
+            function insertBullet() {
+                const textarea = document.getElementById('proposalContent');
+                const start = textarea.selectionStart;
+                
+                textarea.value = textarea.value.substring(0, start) + '• ' + textarea.value.substring(start);
+                updatePreview();
+            }
+            
+            // Função para gerar a mensagem
+            function generateMessage() {
+                const dateParts = currentDate.value.split('-');
+                const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+                
+                return `${proposalContent.value}
 
 Imobiliária: ${clientName.value || '[NOME DA IMOBILIÁRIA]'}
 Responsável: ${responsibleName.value || '[NOME DO RESPONSÁVEL]'}
@@ -389,6 +473,7 @@ Data: ${formattedDate}
             responsibleName.addEventListener('input', updatePreview);
             clientEmail.addEventListener('input', updatePreview);
             currentDate.addEventListener('change', updatePreview);
+            proposalContent.addEventListener('input', updatePreview);
             
             // Botão de atualizar
             btnUpdate.addEventListener('click', updatePreview);
@@ -403,7 +488,7 @@ Data: ${formattedDate}
                 });
             });
             
-            // Botão do WhatsApp - CORREÇÃO DO PROBLEMA
+            // Botão do WhatsApp
             btnWhatsApp.addEventListener('click', function() {
                 const messageText = encodeURIComponent(generateMessage());
                 // Abre o WhatsApp com a mensagem pré-preenchida
