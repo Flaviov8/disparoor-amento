@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Proposta Comercial</title>
+    <title>Editor de Proposta Comercial com Imagem</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -120,6 +120,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         
         .editor-btn {
@@ -157,6 +158,58 @@
             font-family: 'Courier New', monospace;
             max-height: 500px;
             overflow-y: auto;
+        }
+        
+        .image-upload {
+            border: 2px dashed #25D366;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #f0f8ff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .image-upload:hover {
+            background-color: #e0f0ff;
+        }
+        
+        .image-upload i {
+            font-size: 40px;
+            color: #25D366;
+            margin-bottom: 10px;
+        }
+        
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .remove-image {
+            margin-top: 10px;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .remove-image:hover {
+            background-color: #ff2e43;
         }
         
         .actions {
@@ -254,6 +307,10 @@
             h1 {
                 font-size: 24px;
             }
+            
+            .editor-controls {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -263,8 +320,8 @@
             <div class="logo">
                 <i class="fab fa-whatsapp"></i>
             </div>
-            <h1>Editor de Proposta Comercial para WhatsApp</h1>
-            <p>Edite a proposta e visualize em tempo real como ficará no WhatsApp</p>
+            <h1>Editor de Proposta Comercial com Imagem</h1>
+            <p>Adicione um logotipo e edite a proposta antes de enviar pelo WhatsApp</p>
         </header>
         
         <div class="content">
@@ -288,12 +345,27 @@
                     <input type="date" id="currentDate">
                 </div>
                 
+                <h3>Adicionar Logotipo</h3>
+                <div class="image-upload" id="imageUpload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Clique para adicionar um logotipo ou imagem</p>
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImage" src="" alt="Preview">
+                    <button class="remove-image" onclick="removeImage()">
+                        <i class="fas fa-trash"></i> Remover Imagem
+                    </button>
+                </div>
+                
                 <h3>Conteúdo da Proposta</h3>
                 <div class="editor-controls">
-                    <button class="editor-btn" onclick="formatText('bold')"><i class="fas fa-bold"></i></button>
-                    <button class="editor-btn" onclick="formatText('italic')"><i class="fas fa-italic"></i></button>
-                    <button class="editor-btn" onclick="formatText('underline')"><i class="fas fa-underline"></i></button>
-                    <button class="editor-btn" onclick="insertBullet()"><i class="fas fa-list-ul"></i></button>
+                    <button class="editor-btn" onclick="formatText('bold')"><i class="fas fa-bold"></i> Negrito</button>
+                    <button class="editor-btn" onclick="formatText('italic')"><i class="fas fa-italic"></i> Itálico</button>
+                    <button class="editor-btn" onclick="formatText('underline')"><i class="fas fa-underline"></i> Sublinhado</button>
+                    <button class="editor-btn" onclick="insertBullet()"><i class="fas fa-list-ul"></i> Marcador</button>
+                    <button class="editor-btn" onclick="insertImageTag()"><i class="fas fa-image"></i> Inserir Imagem</button>
                 </div>
                 
                 <textarea id="proposalContent"></textarea>
@@ -350,6 +422,13 @@
             const btnCopy = document.getElementById('btnCopy');
             const btnWhatsApp = document.getElementById('btnWhatsApp');
             const notification = document.getElementById('notification');
+            const imageUpload = document.getElementById('imageUpload');
+            const imageInput = document.getElementById('imageInput');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImage = document.getElementById('previewImage');
+            
+            // Variável para armazenar a imagem em base64
+            let uploadedImage = null;
             
             // Conteúdo inicial da proposta
             proposalContent.value = `*DETALHAMENTO DOS SERVIÇOS*
@@ -398,6 +477,35 @@ Semana 4: Testes, ajustes finais e colocação no ar
 • Alterações significativas no escopo original podem impactar prazos e valores
 
 Aceito e de acordo:`;
+            
+            // Configurar upload de imagem
+            imageUpload.addEventListener('click', function() {
+                imageInput.click();
+            });
+            
+            imageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    
+                    reader.addEventListener('load', function() {
+                        uploadedImage = reader.result;
+                        previewImage.src = uploadedImage;
+                        imagePreview.style.display = 'block';
+                        updatePreview();
+                    });
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Função para remover imagem
+            window.removeImage = function() {
+                uploadedImage = null;
+                imagePreview.style.display = 'none';
+                imageInput.value = '';
+                updatePreview();
+            };
             
             // Função para formatar a data no formato brasileiro
             function formatDate(dateString) {
@@ -448,12 +556,29 @@ Aceito e de acordo:`;
                 updatePreview();
             }
             
+            function insertImageTag() {
+                if (!uploadedImage) {
+                    showNotification('Por favor, faça upload de uma imagem primeiro!');
+                    imageUpload.style.borderColor = '#ff4757';
+                    setTimeout(() => {
+                        imageUpload.style.borderColor = '#25D366';
+                    }, 2000);
+                    return;
+                }
+                
+                const textarea = document.getElementById('proposalContent');
+                const start = textarea.selectionStart;
+                
+                textarea.value = textarea.value.substring(0, start) + '\n[IMAGEM: Logotipo da Imobiliária]\n' + textarea.value.substring(start);
+                updatePreview();
+            }
+            
             // Função para gerar a mensagem
             function generateMessage() {
                 const dateParts = currentDate.value.split('-');
                 const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
                 
-                return `${proposalContent.value}
+                let message = `${proposalContent.value}
 
 Imobiliária: ${clientName.value || '[NOME DA IMOBILIÁRIA]'}
 Responsável: ${responsibleName.value || '[NOME DO RESPONSÁVEL]'}
@@ -461,6 +586,13 @@ E-mail: ${clientEmail.value || '[E-MAIL]'}
 Data: ${formattedDate}
 
 *Este orçamento tem validade de 15 dias a partir da data de emissão.*`;
+                
+                // Adicionar informação sobre imagem se existir
+                if (uploadedImage) {
+                    message = `[PROPOSTA COM LOGOTIPO DA IMOBILIÁRIA]\n\n${message}`;
+                }
+                
+                return message;
             }
             
             // Atualizar a prévia da mensagem
